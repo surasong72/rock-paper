@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rock-paper-scissor</title>
+</head>
+<body>
+    <div id="result" style="text-align:center; margin-top:30px; font-size:1.2em;"></div>
     <script>
-        console.log("hello world");
         let humanScore = 0;
         let computerScore = 0;
+        let round = 1;
+        const totalRounds = 5;
 
         function getComputerChoice() {
             const randomNum = Math.floor(Math.random() * 3);
@@ -17,54 +21,113 @@
                 case 2: return "scissor";
             }
         }
-
+        
         function getHumanChoice() {
-            let humanChoice = prompt("Enter your choice: rock, paper, or scissor");
-            if (!humanChoice) return null;
-            humanChoice = humanChoice.toLowerCase();
-            if (["rock", "paper", "scissor"].includes(humanChoice)) {
-                return humanChoice;
-            } else {
-                alert("Invalid choice. Please enter rock, paper, or scissor.");
-                return getHumanChoice();
-            }
+            return new Promise((resolve) => {
+                const container = document.createElement("div"); 
+
+                const h1 = document.createElement("h1");
+                h1.innerHTML = `Round ${round} of ${totalRounds}: Choose your move`;
+                h1.style.textAlign = "center";
+
+                const buttons = document.createElement("div");
+                buttons.style.display = "grid";
+                buttons.style.gridGap = "80px";
+                buttons.style.gridTemplateColumns = "1fr 1fr 1fr";
+
+                const rock = document.createElement("button");
+                rock.style.backgroundColor = "green";
+                rock.style.color = "white";
+                rock.style.padding = "5px";
+                rock.style.border = "outset";
+                rock.style.cursor = "pointer";
+
+                const paper = document.createElement("button");
+                paper.style.backgroundColor = "grey";
+                paper.style.color = "white";
+                paper.style.padding = "5px";
+                paper.style.border = "outset";
+                paper.style.cursor = "pointer";
+
+                const scissor = document.createElement("button");
+                scissor.style.backgroundColor = "blue";
+                scissor.style.color = "white";
+                scissor.style.padding = "5px";
+                scissor.style.border = "outset";
+                scissor.style.cursor = "pointer";
+
+                rock.textContent = "Rock";
+                rock.value= "rock";
+
+                paper.textContent = "Paper";
+                paper.value="paper";
+
+                scissor.textContent = "Scissor";
+                scissor.value="scissor";
+
+                container.appendChild(h1);
+                buttons.appendChild(rock);
+                buttons.appendChild(paper);
+                buttons.appendChild(scissor);
+                container.appendChild(buttons);
+                document.body.appendChild(container);
+
+                rock.onclick = () => {
+                    resolve("rock");
+                    container.remove();
+                };
+                paper.onclick = () => {
+                    resolve("paper");
+                    container.remove();
+                };
+                scissor.onclick = () => {
+                    resolve("scissor");
+                    container.remove();
+                };
+            });
         }
 
         function playRound(humanChoice, computerChoice) {
+            const resultDiv = document.getElementById("result");
+            let resultText = "";
             if (humanChoice === computerChoice) {
-                console.log("It's a tie! User chose: " + humanChoice + ", computer chose: " + computerChoice);
-                return;
-            }
-            if (
+                resultText = "It's a tie! User chose: " + humanChoice + ", computer chose: " + computerChoice;
+            } else if (
                 (humanChoice === "rock" && computerChoice === "scissor") ||
                 (humanChoice === "paper" && computerChoice === "rock") ||
                 (humanChoice === "scissor" && computerChoice === "paper")
             ) {
                 humanScore += 1;
-                console.log("You win! User chose: " + humanChoice + ", computer chose: " + computerChoice);
+                resultText = "You win! User chose: " + humanChoice + ", computer chose: " + computerChoice;
             } else {
                 computerScore += 1;
-                console.log("You lose! User chose: " + humanChoice + ", computer chose: " + computerChoice);
+                resultText = "You lose! User chose: " + humanChoice + ", computer chose: " + computerChoice;
             }
+            resultDiv.innerHTML = resultText + "<br>Scores - User: " + humanScore + ", Computer: " + computerScore + "<br>Round: " + round + "/" + totalRounds;
         }
 
-        function playGame(rounds) {
-            for (let i = 0; i < rounds; i++) {
-                const humanSelection = getHumanChoice();
+        async function playGame() {
+            while (round <= totalRounds) {
+                const humanSelection = await getHumanChoice();
                 if (humanSelection === null) {
-                    console.log("Game cancelled.");
+                    document.getElementById("result").innerHTML = "Game cancelled.";
                     return;
                 }
                 const computerSelection = getComputerChoice();
                 playRound(humanSelection, computerSelection);
+                round++;
             }
-            console.log("Final Scores - User: " + humanScore + ", Computer: " + computerScore);
+            // Determine winner
+            let finalResult = "";
+            if (humanScore > computerScore) {
+                finalResult = "<strong>You are the overall winner!</strong>";
+            } else if (humanScore < computerScore) {
+                finalResult = "<strong>Computer wins the game!</strong>";
+            } else {
+                finalResult = "<strong>The game is a tie!</strong>";
+            }
+            document.getElementById("result").innerHTML += "<br><br>" + finalResult;
         }
-
-        playGame(5);
+        playGame();
     </script>
-</head>
-<body>
-    
 </body>
-</html>
